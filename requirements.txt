@@ -53,11 +53,8 @@ tgcrypto>=1.2.5
 unidecode
 wget
 telethon
-yt-dlp>=2026.06.09
+git+https://github.com/yt-dlp/yt-dlp.git
 youtube-search-python
-yt-dlp>=2024.08.06
-py-yt
-aiohttp
 
 
 
