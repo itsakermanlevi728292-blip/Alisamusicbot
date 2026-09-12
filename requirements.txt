@@ -55,5 +55,9 @@ wget
 telethon
 yt-dlp>=2026.06.09
 youtube-search-python
+yt-dlp>=2024.08.06
+py-yt
+aiohttp
+
 
 
