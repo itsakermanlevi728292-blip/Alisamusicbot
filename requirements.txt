@@ -47,7 +47,7 @@ search-engine-parser
 speedtest-cli
 SpeechRecognition
 spotipy
-stripe==10.7.0
+stripe==15.6.1
 telegraph
 tgcrypto>=1.2.5
 unidecode
