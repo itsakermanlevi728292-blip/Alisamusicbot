@@ -8,7 +8,7 @@ from pyrogram.types import Message
 from googleapiclient.discovery import build
 from isodate import parse_duration
 
-# Config file se key load karein (Agar aapki key ka variable name alag hai toh yahan badal dein)
+# Config file se key load karein
 try:
     from config import YOUTUBE_API_KEY
 except ImportError:
@@ -110,8 +110,12 @@ class YouTubeAPI:
         self.status = "https://www.youtube.com/oembed?url="
         self.listbase = "https://youtube.com/playlist?list="
         self.reg = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
-        # Official YouTube API Client Initialize
-        self.youtube = build("youtube", "v3", developerKey=YOUTUBE_API_KEY) if YOUTUBE_API_KEY else None
+        # Official API Client (cache_discovery=False to prevent warning error)
+        self.youtube = (
+            build("youtube", "v3", developerKey=YOUTUBE_API_KEY, cache_discovery=False)
+            if YOUTUBE_API_KEY
+            else None
+        )
 
     def _extract_id(self, link: str) -> str:
         if "v=" in link:
@@ -147,7 +151,6 @@ class YouTubeAPI:
         else:
             vidid = self._extract_id(link)
 
-        # Official Search/Fetch Logic
         if re.search(self.regex, link) or videoid:
             req = self.youtube.videos().list(part="snippet,contentDetails", id=vidid)
             res = req.execute()
@@ -160,7 +163,6 @@ class YouTubeAPI:
                 duration_min = seconds_to_min(duration_sec)
                 return title, duration_min, duration_sec, thumbnail, vidid
         
-        # Search Query Logic
         req = self.youtube.search().list(q=link, part="snippet", maxResults=1, type="video")
         res = req.execute()
         if res.get("items"):
@@ -169,7 +171,6 @@ class YouTubeAPI:
             title = item["snippet"]["title"]
             thumbnail = item["snippet"]["thumbnails"]["high"]["url"]
             
-            # Fetch Video Duration
             v_req = self.youtube.videos().list(part="contentDetails", id=vidid)
             v_res = v_req.execute()
             iso_dur = v_res["items"][0]["contentDetails"]["duration"] if v_res.get("items") else "PT0S"
