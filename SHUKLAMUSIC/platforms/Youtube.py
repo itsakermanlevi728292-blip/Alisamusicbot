@@ -147,59 +147,62 @@ class YouTubeAPI:
     async def details(self, link: str, videoid: Union[bool, str] = None):
         if videoid:
             vidid = link
+            link = self.base + link
         else:
             vidid = self._extract_id(link)
 
-        if not self.youtube:
-            return "Unknown Title", "0:00", 0, "", ""
+        title = "Unknown Track"
+        duration_min = "0:00"
+        duration_sec = 0
+        thumbnail = ""
 
-        try:
-            if re.search(self.regex, link) or videoid:
-                req = self.youtube.videos().list(part="snippet,contentDetails", id=vidid)
+        if self.youtube:
+            try:
+                if re.search(self.regex, link) or videoid:
+                    req = self.youtube.videos().list(part="snippet,contentDetails", id=vidid)
+                    res = req.execute()
+                    if res.get("items"):
+                        item = res["items"][0]
+                        title = item["snippet"]["title"]
+                        thumbnail = item["snippet"]["thumbnails"]["high"]["url"]
+                        iso_dur = item["contentDetails"]["duration"]
+                        duration_sec = int(parse_duration(iso_dur).total_seconds())
+                        duration_min = seconds_to_min(duration_sec)
+                        return title, duration_min, duration_sec, thumbnail, vidid
+                
+                req = self.youtube.search().list(q=link, part="snippet", maxResults=1, type="video")
                 res = req.execute()
                 if res.get("items"):
                     item = res["items"][0]
+                    vidid = item["id"]["videoId"]
                     title = item["snippet"]["title"]
                     thumbnail = item["snippet"]["thumbnails"]["high"]["url"]
-                    iso_dur = item["contentDetails"]["duration"]
+                    
+                    v_req = self.youtube.videos().list(part="contentDetails", id=vidid)
+                    v_res = v_req.execute()
+                    iso_dur = v_res["items"][0]["contentDetails"]["duration"] if v_res.get("items") else "PT0S"
                     duration_sec = int(parse_duration(iso_dur).total_seconds())
                     duration_min = seconds_to_min(duration_sec)
                     return title, duration_min, duration_sec, thumbnail, vidid
-            
-            req = self.youtube.search().list(q=link, part="snippet", maxResults=1, type="video")
-            res = req.execute()
-            if res.get("items"):
-                item = res["items"][0]
-                vidid = item["id"]["videoId"]
-                title = item["snippet"]["title"]
-                thumbnail = item["snippet"]["thumbnails"]["high"]["url"]
-                
-                v_req = self.youtube.videos().list(part="contentDetails", id=vidid)
-                v_res = v_req.execute()
-                iso_dur = v_res["items"][0]["contentDetails"]["duration"] if v_res.get("items") else "PT0S"
-                duration_sec = int(parse_duration(iso_dur).total_seconds())
-                duration_min = seconds_to_min(duration_sec)
-                return title, duration_min, duration_sec, thumbnail, vidid
-        except Exception:
-            pass
+            except Exception:
+                pass
 
-        return "Unknown Title", "0:00", 0, "", ""
+        return title, duration_min, duration_sec, thumbnail, vidid
 
     async def title(self, link: str, videoid: Union[bool, str] = None):
-        res = await self.details(link, videoid)
-        return res[0]
+        t, _, _, _, _ = await self.details(link, videoid)
+        return t
 
     async def duration(self, link: str, videoid: Union[bool, str] = None):
-        res = await self.details(link, videoid)
-        return res[1]
+        _, d, _, _, _ = await self.details(link, videoid)
+        return d
 
     async def thumbnail(self, link: str, videoid: Union[bool, str] = None):
-        res = await self.details(link, videoid)
-        return res[3]
+        _, _, _, thumb, _ = await self.details(link, videoid)
+        return thumb
 
     async def track(self, link: str, videoid: Union[bool, str] = None):
-        res = await self.details(link, videoid)
-        title, duration_min, _, thumbnail, vidid = res
+        title, duration_min, _, thumbnail, vidid = await self.details(link, videoid)
         track_details = {
             "title": title,
             "link": f"{self.base}{vidid}",
@@ -265,7 +268,7 @@ class YouTubeAPI:
 
     async def slider(self, link: str, query_type: int, videoid: Union[bool, str] = None):
         if not self.youtube:
-            return None, None, None, None
+            return "Unknown Title", "0:00", "", ""
         try:
             req = self.youtube.search().list(q=link, part="snippet", maxResults=10, type="video")
             res = req.execute()
@@ -283,7 +286,7 @@ class YouTubeAPI:
                 return title, duration_min, thumbnail, vidid
         except Exception:
             pass
-        return None, None, None, None
+        return "Unknown Title", "0:00", "", ""
 
     async def download(
         self,
@@ -310,4 +313,4 @@ class YouTubeAPI:
             return None, False
 
 YouTube = YouTubeAPI()
-                        
+        
