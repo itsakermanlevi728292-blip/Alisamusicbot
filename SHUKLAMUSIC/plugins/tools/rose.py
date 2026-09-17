@@ -6,7 +6,7 @@ from pyrogram.types import Message
 from SHUKLAMUSIC import app
 import config
 
-OWNER_NAME = "SASUKE"
+OWNER_NAME = "ටිαѕυкє"
 OWNER_USERNAME = "sasuke_qt"
 OWNER_ID = 8672927645
 OWNER_BIO = "𝐅ʀᴏᴍ 𝐒ᴜғғᴇʀɪɴɢ 𝐂ᴏᴍᴇs 𝐆ʟᴏʀʏ ⚡"
@@ -52,19 +52,19 @@ below for bot setup, support &amp; queries.
 KEYBOARD = {
     "inline_keyboard": [
         [{
-            "text": "CONTACT OWNER",
+            "text": "𝐂ᴏɴᴛᴇᴄᴛ 𝐎ᴡɴᴇʀ",
             "url": f"https://t.me/{OWNER_USERNAME}",
             "style": "primary",
             "icon_custom_emoji_id": CONTACT_EMOJI,
         }],
         [{
-            "text": "MY CHANNEL",
-            "url": "https://t.me/Aw_Music_channel",
+            "text": "𝐌ʏ 𝐂ʜᴀɴɴᴇʟ",
+            "url": "https://t.me/ll_ABOUT_SASUKE_ll",
             "style": "success",
             "icon_custom_emoji_id": CHANNEL_EMOJI,
         }],
         [{
-            "text": "HELP & SUPPORT",
+            "text": "𝐇ᴇʟᴘ & 𝐒ᴜᴘᴘᴏʀᴛ",
             "url": f"https://t.me/{OWNER_USERNAME}",
             "style": "danger",
             "icon_custom_emoji_id": SUPPORT_EMOJI,
