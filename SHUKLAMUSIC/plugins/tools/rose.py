@@ -1,14 +1,14 @@
-from pyrogram import filters, enums
+from pyrogram import filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from SHUKLAMUSIC import app
 
-# Owner Details Configuration
+# Configuration
 OWNER_NAME = "Shivansh"
 OWNER_USERNAME = "YourTelegramUsername"  # Bina @ ke
-OWNER_ID = "8891769246"  # Aapka Telegram User ID
+OWNER_ID = "8891769246"
 OWNER_BIO = "Music Bot Creator & Developer ⚡"
 
-@app.on_message(filters.command(["rose"]))
+@app.on_message(filters.command(["rose", "Rose"], prefixes=["/", "!", "."]))
 async def rose_owner_info(client, message: Message):
     caption = f"""
 <emoji id="5431455325206306383">🌹</emoji> <b><u>OWNER DETAILS & PROFILE</u></b> <emoji id="5431455325206306383">🌹</emoji>
@@ -35,7 +35,6 @@ async def rose_owner_info(client, message: Message):
 
     await message.reply_text(
         text=caption,
-        parse_mode=enums.ParseMode.HTML,
         reply_markup=buttons
     )
     
