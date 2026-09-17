@@ -1,24 +1,24 @@
-from pyrogram import filters
+from pyrogram import filters, enums
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from SHUKLAMUSIC import app
 
 # Configuration
 OWNER_NAME = "Shivansh"
-OWNER_USERNAME = "YourTelegramUsername"  # Bina @ ke
+OWNER_USERNAME = "YourTelegramUsername"  # Bina @ ke username likhein
 OWNER_ID = "8891769246"
 OWNER_BIO = "Music Bot Creator & Developer ⚡"
 
 @app.on_message(filters.command(["rose", "Rose"], prefixes=["/", "!", "."]))
 async def rose_owner_info(client, message: Message):
     caption = f"""
-<emoji id="5431455325206306383">🌹</emoji> <b><u>OWNER DETAILS & PROFILE</u></b> <emoji id="5431455325206306383">🌹</emoji>
+🌹 <b><u>OWNER DETAILS & PROFILE</u></b> 🌹
 
-<emoji id="5359492143093291241">👤</emoji> <b>Name:</b> {OWNER_NAME}
-<emoji id="5431835730384218386">🆔</emoji> <b>User ID:</b> <code>{OWNER_ID}</code>
-<emoji id="5431718224206202410">💬</emoji> <b>Username:</b> @{OWNER_USERNAME}
-<emoji id="5431375254130168393">📝</emoji> <b>Bio:</b> {OWNER_BIO}
+👤 <b>Name:</b> {OWNER_NAME}
+🆔 <b>User ID:</b> <code>{OWNER_ID}</code>
+💬 <b>Username:</b> @{OWNER_USERNAME}
+📝 <b>Bio:</b> {OWNER_BIO}
 
-<emoji id="5431520286083341812">✨</emoji> <i>For any queries, bot setup, or support, feel free to contact using the buttons below!</i>
+✨ <i>For any queries, bot setup, or support, feel free to contact using the buttons below!</i>
 """
 
     buttons = InlineKeyboardMarkup(
@@ -35,6 +35,7 @@ async def rose_owner_info(client, message: Message):
 
     await message.reply_text(
         text=caption,
+        parse_mode=enums.ParseMode.HTML,
         reply_markup=buttons
     )
     
