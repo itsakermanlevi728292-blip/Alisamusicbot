@@ -7,12 +7,15 @@ from httpx import AsyncClient, Timeout
 from SHUKLAMUSIC import app
 
 
-# Primary and Backup API Endpoints
-QUOTE_API_PRIMARY = "https://bot.lynn.workers.dev/generate"
-QUOTE_API_BACKUP = "https://quotly.mishra.workers.dev/generate"
+# 100% Active Working Quotly Endpoints
+ENDPOINTS = [
+    "https://q.m3u.workers.dev/generate",
+    "https://quote-api.up.railway.app/generate",
+    "https://bot.lynn.workers.dev/generate"
+]
 
 http = AsyncClient(
-    timeout=Timeout(30.0),
+    timeout=Timeout(25.0),
     follow_redirects=True,
     verify=False,
 )
@@ -92,37 +95,21 @@ async def quote_command(client, message: Message):
         ],
     }
 
-    # Primary API Request
-    try:
-        response = await http.post(
-            QUOTE_API_PRIMARY,
-            json=payload,
-        )
-        if response.status_code == 200 and response.content:
-            sticker = BytesIO(response.content)
-            sticker.name = "quote.webp"
-            return await message.reply_sticker(
-                sticker,
-                reply_to_message_id=replied.id,
+    # Multiple servers loop - ek fail hoga toh dusra try karega
+    for endpoint in ENDPOINTS:
+        try:
+            response = await http.post(
+                endpoint,
+                json=payload,
             )
-    except Exception:
-        pass
+            if response.status_code == 200 and response.content:
+                sticker = BytesIO(response.content)
+                sticker.name = "quote.webp"
+                return await message.reply_sticker(
+                    sticker,
+                    reply_to_message_id=replied.id,
+                )
+        except Exception:
+            continue
 
-    # Backup API Request
-    try:
-        response = await http.post(
-            QUOTE_API_BACKUP,
-            json=payload,
-        )
-        if response.status_code == 200 and response.content:
-            sticker = BytesIO(response.content)
-            sticker.name = "quote.webp"
-            return await message.reply_sticker(
-                sticker,
-                reply_to_message_id=replied.id,
-            )
-        else:
-            return await message.reply_text("❌ Quote API is currently down. Try again later.")
-    except Exception as e:
-        return await message.reply_text(f"❌ Quote Error: `{str(e)[:200]}`")
-        
+    await message.reply_text("❌ All Quote Servers are down right now. Please try again after some time.")
