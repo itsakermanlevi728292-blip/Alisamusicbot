@@ -1,7 +1,10 @@
-from pyrogram import filters, enums
-from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
+import httpx
+
+from pyrogram import filters
+from pyrogram.types import Message
 
 from SHUKLAMUSIC import app
+import config
 
 
 # ═══════════════════════════════════════
@@ -15,22 +18,16 @@ OWNER_BIO = "𝐅ʀᴏᴍ 𝐒ᴜғғᴇʀɪɴɢ 𝐂ᴏᴍᴇs 𝐆ʟᴏʀʏ �
 
 
 # ═══════════════════════════════════════
-# PREMIUM / CUSTOM EMOJI
-# Replace this ID with your own custom emoji ID if needed.
+# PREMIUM EMOJI IDs
 # ═══════════════════════════════════════
 
-PREMIUM_EMOJI_ID = "6269180384047533905"
-
-E_CROWN = f'<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">👑</tg-emoji>'
-E_STAR = f'<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">✨</tg-emoji>'
-E_ROSE = f'<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">🌹</tg-emoji>'
-E_ID = f'<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">🆔</tg-emoji>'
-E_CHAT = f'<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">💬</tg-emoji>'
-E_NOTE = f'<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">📝</tg-emoji>'
+EMOJI_CROWN = "6269180384047533905"
+EMOJI_STAR = "6269180384047533905"
+EMOJI_ROSE = "6269180384047533905"
 
 
 # ═══════════════════════════════════════
-# /ROSE COMMAND
+# /ROSE
 # ═══════════════════════════════════════
 
 @app.on_message(
@@ -42,61 +39,134 @@ E_NOTE = f'<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">📝</tg-emoji>'
 async def rose_owner_info(client, message: Message):
 
     text = f"""
-{E_ROSE} <b>OWNER DETAILS & PROFILE</b> {E_ROSE}
+<b>🌹 OWNER DETAILS & PROFILE 🌹</b>
 
-{E_CROWN} <b>Name:</b>
+<b>👑 Name:</b>
 <a href="tg://user?id={OWNER_ID}">{OWNER_NAME}</a>
 
-{E_ID} <b>User ID:</b>
+<b>🆔 User ID:</b>
 <code>{OWNER_ID}</code>
 
-{E_CHAT} <b>Username:</b>
+<b>💬 Username:</b>
 @{OWNER_USERNAME}
 
-{E_NOTE} <b>Bio:</b>
+<b>📝 Bio:</b>
 <i>{OWNER_BIO}</i>
 
-━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━
 
-{E_STAR} <b>Need Help or Support?</b>
+<b>✨ Need Help or Support?</b>
 
 Contact the owner using the buttons
 below for bot setup, support & queries.
 """
 
-    buttons = InlineKeyboardMarkup(
-        [
+
+    # ═══════════════════════════════════
+    # COLOURED BUTTONS
+    # ═══════════════════════════════════
+
+    keyboard = {
+        "inline_keyboard": [
+
+            # 🔵 BLUE
             [
-                InlineKeyboardButton(
-                    "🌹 ᴄᴏɴᴛᴀᴄᴛ ᴏᴡɴᴇʀ",
-                    url=f"https://t.me/{OWNER_USERNAME}"
-                )
+                {
+                    "text": "ᴄᴏɴᴛᴀᴄᴛ ᴏᴡɴᴇʀ",
+                    "url": f"https://t.me/{OWNER_USERNAME}",
+                    "style": "primary",
+                    "icon_custom_emoji_id": EMOJI_CROWN
+                }
             ],
+
+            # 🟢 GREEN
             [
-                InlineKeyboardButton(
-                    "✨ ᴍʏ ᴄʜᴀɴɴᴇʟ",
-                    url="https://t.me/Aw_Music_channel"
-                )
+                {
+                    "text": "ᴍʏ ᴄʜᴀɴɴᴇʟ",
+                    "url": "https://t.me/Aw_Music_channel",
+                    "style": "success",
+                    "icon_custom_emoji_id": EMOJI_STAR
+                }
+            ],
+
+            # 🔴 RED
+            [
+                {
+                    "text": "ʜᴇʟᴘ & sᴜᴘᴘᴏʀᴛ",
+                    "url": f"https://t.me/{OWNER_USERNAME}",
+                    "style": "danger",
+                    "icon_custom_emoji_id": EMOJI_ROSE
+                }
             ]
         ]
-    )
+    }
 
-    try:
-        await message.reply_text(
-            text=text,
-            parse_mode=enums.ParseMode.HTML,
-            reply_markup=buttons
+
+    # ═══════════════════════════════════
+    # TELEGRAM BOT API
+    # ═══════════════════════════════════
+
+    bot_token = getattr(config, "BOT_TOKEN", None)
+
+    if not bot_token:
+        return await message.reply_text(
+            "❌ BOT_TOKEN not found in config.py"
         )
 
+    api_url = (
+        f"https://api.telegram.org/bot"
+        f"{bot_token}/sendMessage"
+    )
+
+
+    data = {
+        "chat_id": message.chat.id,
+        "text": text,
+        "parse_mode": "HTML",
+        "disable_web_page_preview": True,
+        "reply_markup": keyboard,
+
+        "reply_parameters": {
+            "message_id": message.id
+        }
+    }
+
+
+    try:
+
+        async with httpx.AsyncClient(
+            timeout=30
+        ) as http:
+
+            response = await http.post(
+                api_url,
+                json=data
+            )
+
+            result = response.json()
+
+        if not result.get("ok"):
+
+            error = result.get(
+                "description",
+                "Unknown Telegram API error"
+            )
+
+            await message.reply_text(
+                f"❌ <b>Rose Button Error</b>\n\n"
+                f"<code>{error}</code>",
+                parse_mode="HTML"
+            )
+
     except Exception as e:
+
         print(f"[ROSE ERROR] {e}")
 
         try:
             await message.reply_text(
-                f"❌ <b>Rose Command Error</b>\n\n"
+                f"❌ <b>Rose Error</b>\n\n"
                 f"<code>{str(e)[:500]}</code>",
-                parse_mode=enums.ParseMode.HTML
+                parse_mode="HTML"
             )
         except Exception:
             pass
-            
