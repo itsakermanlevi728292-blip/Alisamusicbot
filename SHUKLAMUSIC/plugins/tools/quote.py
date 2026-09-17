@@ -1,78 +1,45 @@
+import asyncio
 from io import BytesIO
-
 from pyrogram import filters
 from pyrogram.types import Message
 from httpx import AsyncClient, Timeout
 
 from SHUKLAMUSIC import app
 
-
-# 100% Active Working Quotly Endpoints
-ENDPOINTS = [
-    "https://q.m3u.workers.dev/generate",
-    "https://quote-api.up.railway.app/generate",
-    "https://bot.lynn.workers.dev/generate"
-]
+# Telegram Quotly Webhook Direct Endpoint
+API_URL = "https://bot.lynn.workers.dev/generate"
 
 http = AsyncClient(
-    timeout=Timeout(25.0),
+    timeout=Timeout(20.0),
     follow_redirects=True,
-    verify=False,
+    verify=False
 )
 
-
 def get_text(msg: Message):
-    return (
-        msg.text
-        or msg.caption
-        or ""
-    ).strip()
-
+    return (msg.text or msg.caption or "").strip()
 
 def get_name(msg: Message):
     if msg.from_user:
-        return (
-            msg.from_user.first_name
-            or msg.from_user.username
-            or "Unknown"
-        )
-
+        return msg.from_user.first_name or msg.from_user.username or "User"
     if msg.sender_chat:
-        return msg.sender_chat.title or "Unknown"
+        return msg.sender_chat.title or "Group"
+    return "User"
 
-    return "Unknown"
-
-
-def get_user_id(msg: Message):
-    if msg.from_user:
-        return msg.from_user.id
-
-    if msg.sender_chat:
-        return msg.sender_chat.id
-
-    return 0
-
-
-@app.on_message(
-    filters.command(["q", "quote", "r"])
-    & filters.reply
-)
+@app.on_message(filters.command(["q", "quote", "r"]) & filters.reply)
 async def quote_command(client, message: Message):
     replied = message.reply_to_message
 
     if not replied:
-        return await message.reply_text(
-            "❌ Reply to a message first."
-        )
+        return await message.reply_text("❌ Reply to a message first.")
 
     text = get_text(replied)
 
     if not text:
-        return await message.reply_text(
-            "❌ I can only quote text messages."
-        )
+        return await message.reply_text("❌ I can only quote text messages.")
 
-    user_id = get_user_id(replied)
+    st_msg = await message.reply_text("🔄 **Generating Quote...**")
+
+    user_id = replied.from_user.id if replied.from_user else 0
     name = get_name(replied)
 
     payload = {
@@ -95,21 +62,36 @@ async def quote_command(client, message: Message):
         ],
     }
 
-    # Multiple servers loop - ek fail hoga toh dusra try karega
-    for endpoint in ENDPOINTS:
-        try:
-            response = await http.post(
-                endpoint,
-                json=payload,
+    try:
+        res = await http.post(API_URL, json=payload)
+        if res.status_code == 200 and len(res.content) > 100:
+            sticker = BytesIO(res.content)
+            sticker.name = "quote.webp"
+            await st_msg.delete()
+            return await message.reply_sticker(
+                sticker,
+                reply_to_message_id=replied.id
             )
-            if response.status_code == 200 and response.content:
-                sticker = BytesIO(response.content)
-                sticker.name = "quote.webp"
-                return await message.reply_sticker(
-                    sticker,
-                    reply_to_message_id=replied.id,
-                )
-        except Exception:
-            continue
+    except Exception as e:
+        pass
 
-    await message.reply_text("❌ All Quote Servers are down right now. Please try again after some time.")
+    # Backup Telegram Bot Forward Method
+    try:
+        await st_msg.edit_text("⏳ *Connecting Telegram Quotly Engine...*")
+        
+        # Forward message to @QuotLyBot
+        fwd = await replied.forward("@QuotLyBot")
+        await asyncio.sleep(2)
+        
+        async for msg in client.get_chat_history("@QuotLyBot", limit=1):
+            if msg.sticker:
+                await st_msg.delete()
+                return await message.reply_sticker(
+                    msg.sticker.file_id,
+                    reply_to_message_id=replied.id
+                )
+    except Exception as e:
+        pass
+
+    await st_msg.edit_text("❌ Failed to generate quote. Make sure bot is working properly.")
+    
