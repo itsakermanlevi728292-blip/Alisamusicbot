@@ -15,15 +15,18 @@ OWNER_BIO = "𝐅ʀᴏᴍ 𝐒ᴜғғᴇʀɪɴɢ 𝐂ᴏᴍᴇs 𝐆ʟᴏʀʏ �
 
 
 # ═══════════════════════════════════════
-# PREMIUM EMOJI
+# PREMIUM / CUSTOM EMOJI
+# Replace this ID with your own custom emoji ID if needed.
 # ═══════════════════════════════════════
 
-E_CROWN = '<tg-emoji emoji-id="6269180384047533905">👑</tg-emoji>'
-E_STAR = '<tg-emoji emoji-id="6269180384047533905">✨</tg-emoji>'
-E_ROSE = '<tg-emoji emoji-id="6269180384047533905">🌹</tg-emoji>'
-E_ID = '<tg-emoji emoji-id="6269180384047533905">🆔</tg-emoji>'
-E_CHAT = '<tg-emoji emoji-id="6269180384047533905">💬</tg-emoji>'
-E_NOTE = '<tg-emoji emoji-id="6269180384047533905">📝</tg-emoji>'
+PREMIUM_EMOJI_ID = "6269180384047533905"
+
+E_CROWN = f'<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">👑</tg-emoji>'
+E_STAR = f'<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">✨</tg-emoji>'
+E_ROSE = f'<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">🌹</tg-emoji>'
+E_ID = f'<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">🆔</tg-emoji>'
+E_CHAT = f'<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">💬</tg-emoji>'
+E_NOTE = f'<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">📝</tg-emoji>'
 
 
 # ═══════════════════════════════════════
@@ -57,14 +60,9 @@ async def rose_owner_info(client, message: Message):
 
 {E_STAR} <b>Need Help or Support?</b>
 
-Contact the owner using the button
+Contact the owner using the buttons
 below for bot setup, support & queries.
 """
-
-
-    # ═══════════════════════════════════
-    # PREMIUM BUTTONS
-    # ═══════════════════════════════════
 
     buttons = InlineKeyboardMarkup(
         [
@@ -83,26 +81,22 @@ below for bot setup, support & queries.
         ]
     )
 
-
-    # ═══════════════════════════════════
-    # SEND MESSAGE
-    # ═══════════════════════════════════
-
     try:
-
         await message.reply_text(
             text=text,
             parse_mode=enums.ParseMode.HTML,
-            reply_markup=buttons,
-            disable_web_page_preview=True
+            reply_markup=buttons
         )
 
     except Exception as e:
-
         print(f"[ROSE ERROR] {e}")
 
-        await message.reply_text(
-            f"❌ <b>Rose Command Error</b>\n\n"
-            f"<code>{str(e)[:500]}</code>",
-            parse_mode=enums.ParseMode.HTML
-    )
+        try:
+            await message.reply_text(
+                f"❌ <b>Rose Command Error</b>\n\n"
+                f"<code>{str(e)[:500]}</code>",
+                parse_mode=enums.ParseMode.HTML
+            )
+        except Exception:
+            pass
+            
