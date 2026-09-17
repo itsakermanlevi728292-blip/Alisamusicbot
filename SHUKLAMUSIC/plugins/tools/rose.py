@@ -10,7 +10,7 @@ OWNER_BIO = "𝐅ʀᴏᴍ 𝐒ᴜғғᴇʀɪɴɢ 𝐂ᴏᴍᴇs 𝐆ʟᴏʀʏ"
 
 # Image URL (Aapki Sasuke photo ka direct link)
 # Agar link badalna ho to photo ko kisi TG channel/bot par bhej kar link copy karke yahan replace karein
-IMAGE_URL = "https://telegra.ph/file/0db447d91e3271424750f.jpg" 
+IMAGE_URL = "https://files.catbox.moe/7xfdz6.jpg" 
 
 # 18-digit Telegram Premium Emoji ID
 PREMIUM_EMOJI_ID = "5431520286083341812"
