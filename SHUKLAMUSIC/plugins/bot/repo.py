@@ -29,7 +29,7 @@ start_txt = (
     f"{e(_E_RIGHT,'➡️')} sᴛᴏʀᴀɢᴇ      :  𝟸𝟽.𝟺%\n"
     f"{e(_E_RIGHT,'➡️')} ᴄᴩᴜ ʟᴏᴀᴅ    :  𝟷𝟷.𝟸%\n"
     f"{e(_E_RIGHT,'➡️')} ʀᴀᴍ ᴜsᴇ     :  𝟷𝟽.𝟻%||</pre>\n\n"
-    f"{e(_E_ROSE,'🌹')} ᴘᴏᴡєʀєᴅ ʙʏ» <a href=\"https://t.me/Demon_x_coder_aura\">ᯓ꯭×𝓓ⲉⲙⲟ꯭ⲛ-֟፝.𓆪᭄ꪾ𑱟</a>\n"
+    f"{e(_E_ROSE,'🌹')} ᴘᴏᴡєʀєᴅ ʙʏ» <a href=\"https://t.me/sasuke_qt\">ටිαѕυкє</a>\n"
     f"{e(_E_BOUQ,'💐')} {e(_E_FLOWER,'🌸')} {e(_E_RIBBON,'🎀')} {e(_E_HEART,'❤️')}"
 )
 
@@ -66,3 +66,4 @@ async def start(_, msg):
         caption=start_txt,
         reply_markup=InlineKeyboardMarkup(buttons),
     )
+    
