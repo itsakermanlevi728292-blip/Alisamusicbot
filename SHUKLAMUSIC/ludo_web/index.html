@@ -1,1 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Telegram Ludo</title>
 
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      background: #101014;
+      color: white;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 15px;
+    }
+
+    .game {
+      width: 100%;
+      max-width: 430px;
+      text-align: center;
+    }
+
+    .title {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      color: #aaa;
+      margin-bottom: 18px;
+    }
+
+    .board {
+      width: 100%;
+      aspect-ratio: 1;
+      background: white;
+      border: 5px solid #222;
+      border-radius: 14px;
+      overflow: hidden;
+
+      display: grid;
+      grid-template-columns: repeat(15, 1fr);
+      grid-template-rows: repeat(15, 1fr);
+    }
+
+    .cell {
+      border: 1px solid #ddd;
+      background: #fff;
+      position: relative;
+    }
+
+    .red-zone {
+      grid-column: 1 / 7;
+      grid-row: 1 / 7;
+      background: #ef4444;
+    }
+
+    .green-zone {
+      grid-column: 10 / 16;
+      grid-row: 1 / 7;
+      background: #22c55e;
+    }
+
+    .blue-zone {
+      grid-column: 1 / 7;
+      grid-row: 10 / 16;
+      background: #3b82f6;
+    }
+
+    .yellow-zone {
+      grid-column: 10 / 16;
+      grid-row: 10 / 16;
+      background: #facc15;
+    }
+
+    .center {
+      grid-column: 7 / 10;
+      grid-row: 7 / 10;
+      background: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 26px;
+      font-weight: bold;
+      color: #111;
+    }
+
+    .home {
+      width: 70%;
+      height: 70%;
+      margin: auto;
+      background: white;
+      border-radius: 18px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 8px;
+      padding: 8px;
+      position: absolute;
+      inset: 15%;
+    }
+
+    .token {
+      width: 25px;
+      height: 25px;
+      border-radius: 50%;
+      border: 3px solid white;
+      box-shadow: 0 2px 5px #555;
+      margin: auto;
+    }
+
+    .red {
+      background: #dc2626;
+    }
+
+    .green {
+      background: #16a34a;
+    }
+
+    .blue {
+      background: #2563eb;
+    }
+
+    .yellow {
+      background: #eab308;
+    }
+
+    .info {
+      margin-top: 18px;
+      background: #19191f;
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .turn {
+      font-size: 17px;
+      margin-bottom: 12px;
+    }
+
+    .dice {
+      font-size: 55px;
+      margin: 5px 0 12px;
+    }
+
+    button {
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      padding: 15px;
+      background: #5865f2;
+      color: white;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .players {
+      margin-top: 12px;
+      color: #bbb;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="game">
+
+    <div class="title">🎲 LUDO</div>
+    <div class="subtitle">Telegram Multiplayer</div>
+
+    <div class="board">
+
+      <div class="red-zone">
+        <div class="home">
+          <div class="token red"></div>
+          <div class="token red"></div>
+          <div class="token red"></div>
+          <div class="token red"></div>
+        </div>
+      </div>
+
+      <div class="green-zone">
+        <div class="home">
+          <div class="token green"></div>
+          <div class="token green"></div>
+          <div class="token green"></div>
+          <div class="token green"></div>
+        </div>
+      </div>
+
+      <div class="blue-zone">
+        <div class="home">
+          <div class="token blue"></div>
+          <div class="token blue"></div>
+          <div class="token blue"></div>
+          <div class="token blue"></div>
+        </div>
+      </div>
+
+      <div class="yellow-zone">
+        <div class="home">
+          <div class="token yellow"></div>
+          <div class="token yellow"></div>
+          <div class="token yellow"></div>
+          <div class="token yellow"></div>
+        </div>
+      </div>
+
+      <div class="center">🏆</div>
+
+    </div>
+
+    <div class="info">
+
+      <div class="turn">
+        🎮 <b>Your Turn</b>
+      </div>
+
+      <div class="dice" id="dice">🎲</div>
+
+      <button onclick="rollDice()">
+        🎲 ROLL DICE
+      </button>
+
+      <div class="players">
+        👥 Players: 2/4
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    function rollDice() {
+
+      const dice = document.getElementById("dice");
+
+      const numbers = [
+        "⚀",
+        "⚁",
+        "⚂",
+        "⚃",
+        "⚄",
+        "⚅"
+      ];
+
+      const result = Math.floor(Math.random() * 6);
+
+      dice.textContent = numbers[result];
+    }
+  </script>
+
+</body>
+  </html>
